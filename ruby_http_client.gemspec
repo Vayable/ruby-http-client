@@ -1,9 +1,11 @@
-lib = File.expand_path('lib', __dir__)
+lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name = 'ruby_http_client'
   spec.version = '3.3.0'
+  spec.required_ruby_version = '>= 1.9.3'
+
   spec.authors = ['Elmer Thomas']
   spec.email = 'dx@sendgrid.com'
   spec.summary = 'A simple REST client'

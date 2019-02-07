@@ -38,7 +38,14 @@ module SendGrid
     #   - +proxy_options+ -> A hash of proxy settings.
     #                        (e.g. { host: '127.0.0.1', port: 8080 })
     #
-    def initialize(host: nil, request_headers: nil, version: nil, url_path: nil, http_options: {}, proxy_options: {}) # rubocop:disable Metrics/ParameterLists
+    def initialize(options = {}) # rubocop:disable Metrics/ParameterLists
+      host = options.fetch(:host, nil)
+      request_headers = options.fetch(:request_headers, nil)
+      version = options.fetch(:version, nil)
+      url_path = options.fetch(:url_path, nil)
+      http_options = options.fetch(:http_options, {})
+      proxy_options = options.fetch(:proxy_options, {})
+
       @host = host
       @request_headers = request_headers || {}
       @version = version
@@ -125,7 +132,11 @@ module SendGrid
     # * *Returns* :
     #   - The final url string
     #
-    def build_url(query_params: nil)
+    def build_url(options={})
+      if options
+        query_params = options.fetch(:query_params, nil)
+      end
+
       url = [add_version(''), *@url_path].join('/')
       url = build_query_params(url, query_params) if query_params
       URI.parse("#{@host}#{url}")
@@ -141,9 +152,9 @@ module SendGrid
     #
     def build_request(name, args)
       build_args(args) if args
-      uri = build_url(query_params: @query_params)
+      uri = build_url(@query_params)
       @http = build_http(uri.host, uri.port)
-      net_http = Kernel.const_get('Net::HTTP::' + name.to_s.capitalize)
+      net_http = Net::HTTP.const_get(name.to_s.capitalize)
       @request = build_request_headers(net_http.new(uri.request_uri))
       if @request_body &&
          (!@request_headers.key?('Content-Type') ||
